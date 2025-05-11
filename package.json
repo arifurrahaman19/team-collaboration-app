@@ -6,7 +6,9 @@
 		"dev": "NODE_OPTIONS='--loader ts-node/esm' ts-node server.mts",
 		"dev:next": "next dev --turbopack",
 		"build": "next build",
+		"build:server": "next build && tsc --project tsconfig.server.json",
 		"start": "next start",
+		"start:custom": "NODE_ENV=production node dist/server.mjs",
 		"lint": "next lint"
 	},
 	"dependencies": {

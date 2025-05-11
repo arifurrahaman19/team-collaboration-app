@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(request: NextRequest, { params }: { params: { roomId: string } }) {
-	const roomId = params.roomId;
+export async function GET(request: NextRequest, { params }: { params: Promise<{ roomId: string }> }) {
+	const { roomId } = await params;
 
 	if (!roomId) {
-		return NextResponse.json({ error: "Invalid room ID" }, { status: 400 });
+		return Response.json({ error: "Invalid room ID" }, { status: 400 });
 	}
 
 	try {
@@ -14,9 +14,9 @@ export async function GET(request: NextRequest, { params }: { params: { roomId: 
 			orderBy: { createdAt: "asc" },
 		});
 
-		return NextResponse.json({ messages });
+		return Response.json({ messages });
 	} catch (error) {
 		console.error("Error fetching messages:", error);
-		return NextResponse.json({ error: "Failed to fetch messages" }, { status: 500 });
+		return Response.json({ error: "Failed to fetch messages" }, { status: 500 });
 	}
 }
