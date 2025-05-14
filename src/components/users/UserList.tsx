@@ -1,14 +1,14 @@
-import { User, UserRole } from "@/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { FEATURES } from "@/lib/features";
+import { User, UserRole } from "@/types";
 import { format } from "date-fns";
 import { User as UserIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import AuthorizationCheckpost from "../AuthorizationCheckpost";
-import { FEATURES } from "@/lib/features";
+import AuthorizationCheckpost from "../common/AuthorizationCheckpost";
 
 interface UserListProps {
 	users: User[];
@@ -16,32 +16,32 @@ interface UserListProps {
 	onSelectUser?: (userId: string) => void;
 }
 
-export default function UserList({ users, onSelectUser }: UserListProps) {
-	const getBadgeForRole = (role: UserRole) => {
-		switch (role) {
-			case "ADMIN":
-				return (
-					<Badge variant='default' className='bg-red-500'>
-						Admin
-					</Badge>
-				);
-			case "MANAGER":
-				return (
-					<Badge variant='default' className='bg-blue-500'>
-						Manager
-					</Badge>
-				);
-			case "MEMBER":
-				return (
-					<Badge variant='default' className='bg-green-500'>
-						Member
-					</Badge>
-				);
-			default:
-				return <Badge>Unknown</Badge>;
-		}
-	};
+const getBadgeForRole = (role: UserRole) => {
+	switch (role) {
+		case "ADMIN":
+			return (
+				<Badge variant='default' className='bg-red-500 text-white min-w-[80px] flex justify-center w-fit'>
+					Admin
+				</Badge>
+			);
+		case "MANAGER":
+			return (
+				<Badge variant='default' className='bg-blue-500 text-white min-w-[80px] flex justify-center w-fit'>
+					Manager
+				</Badge>
+			);
+		case "MEMBER":
+			return (
+				<Badge variant='default' className='bg-green-500 text-white min-w-[80px] flex justify-center w-fit'>
+					Member
+				</Badge>
+			);
+		default:
+			return <Badge>Unknown</Badge>;
+	}
+};
 
+export default function UserList({ users, onSelectUser }: UserListProps) {
 	return (
 		<Card>
 			<CardHeader className='flex flex-row items-center justify-between w-full'>

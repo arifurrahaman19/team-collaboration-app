@@ -1,8 +1,10 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { User, AuthContextType } from "@/types";
-import axios from "axios";
+import { KEY_AUTH_TOKEN } from "@/constant";
 import { useToast } from "@/hooks/use-toast";
+import axios from "@/lib/axios";
+import { AuthContextType, User } from "@/types";
+import { Cookies } from "@/utils";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -35,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			const loggedInUser = loginRes?.data?.user;
 			setUser(loginRes?.data?.user);
 			localStorage.setItem("unity_pulse_user", JSON.stringify(loggedInUser));
+			Cookies.set(KEY_AUTH_TOKEN, loginRes?.data?.token!);
 			toast({
 				title: "Logged in successfully",
 				description: `Welcome, ${loggedInUser.name}!`,
@@ -55,6 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const logout = () => {
 		setUser(null);
 		localStorage.removeItem("unity_pulse_user");
+		Cookies.destroy(KEY_AUTH_TOKEN);
 		toast({
 			title: "Logged out",
 			description: "You have been logged out successfully.",

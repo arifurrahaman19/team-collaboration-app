@@ -1,49 +1,38 @@
-import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+"use client";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { z } from "zod";
+import { useAuth } from "@/context/AuthContext";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 
 const loginSchema = z.object({
-	email: z.string().email("Invalid email address"),
-	password: z.string().min(6, "Password must be at least 6 characters"),
+	email: z.string().nonempty("Email is Required").email("Invalid email address"),
+	password: z.string().nonempty("Password is Required").min(6, "Password must be at least 6 characters"),
 });
 
+export type loginSchemaValues = z.infer<typeof loginSchema>;
+
 export default function LoginForm() {
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [isLoading, setIsLoading] = useState(false);
 	const { login } = useAuth();
 	const router = useRouter();
 
-	const validate = () => {
-		try {
-			loginSchema.parse({ email, password });
-			setErrors({});
-			return true;
-		} catch (error) {
-			if (error instanceof z.ZodError) {
-				const newErrors: Record<string, string> = {};
-				error.errors.forEach((err) => {
-					if (err.path) {
-						newErrors[err.path[0]] = err.message;
-					}
-				});
-				setErrors(newErrors);
-			}
-			return false;
-		}
-	};
+	const form = useForm<loginSchemaValues>({
+		resolver: zodResolver(loginSchema),
+	});
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		if (!validate()) return;
+	const { formState } = form;
+	const { errors } = formState;
+
+	const handleSubmit = async (values: loginSchemaValues) => {
 		setIsLoading(true);
 		try {
+			const { email, password } = values;
 			await login(email, password);
 			router.push("/dashboard");
 		} catch (error) {
@@ -59,18 +48,30 @@ export default function LoginForm() {
 				<CardTitle className='text-2xl'>Login</CardTitle>
 				<CardDescription className='text-white'>Enter your credentials to access your team workspace</CardDescription>
 			</CardHeader>
-			<form onSubmit={handleSubmit}>
+			<form onSubmit={form.handleSubmit(handleSubmit)}>
 				<CardContent className='space-y-4'>
-					<div className='space-y-2'>
-						<Label htmlFor='email'>Email</Label>
-						<Input className='text-foreground' id='email' type='email' placeholder='your.email@example.com' value={email} onChange={(e) => setEmail(e.target.value)} disabled={isLoading} />
-						{errors.email && <p className='text-sm text-destructive'>{errors.email}</p>}
-					</div>
-					<div className='space-y-2'>
-						<Label htmlFor='password'>Password</Label>
-						<Input className='text-foreground' id='password' type='password' value={password} onChange={(e) => setPassword(e.target.value)} disabled={isLoading} />
-						{errors.password && <p className='text-sm text-destructive'>{errors.password}</p>}
-					</div>
+					<Controller
+						control={form.control}
+						name='email'
+						render={({ field }) => (
+							<div className='space-y-2'>
+								<Label htmlFor='email'>Email</Label>
+								<Input id='email' type='email' placeholder='your.email@example.com' disabled={isLoading} {...field} />
+								{errors.email && <p className='text-sm text-red-500'>{errors.email?.message}</p>}
+							</div>
+						)}
+					/>
+					<Controller
+						control={form.control}
+						name='password'
+						render={({ field }) => (
+							<div className='space-y-2'>
+								<Label htmlFor='password'>Password</Label>
+								<Input className='text-foreground' id='password' type='password' disabled={isLoading} {...field} />
+								{errors.password && <p className='text-sm text-red-500'>{errors?.password?.message}</p>}
+							</div>
+						)}
+					/>
 				</CardContent>
 				<CardFooter className='flex flex-col'>
 					<Button type='submit' className='w-full' disabled={isLoading}>

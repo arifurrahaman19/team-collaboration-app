@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const verifyPassword = async (password: string, hashed: string) => {
 	return await bcrypt.compare(password, hashed);
@@ -29,8 +30,13 @@ export async function POST(req: Request) {
 			return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
 		}
 
+		const secret = process.env.SECRET!;
+		const expiresIn = process.env.AUTH_JWT_EXPIRES_IN as any;
+		const token = jwt.sign({ uid: user.id, email: user.email, userType: user.role }, secret, { expiresIn });
+
 		return NextResponse.json({
 			message: "Login successful",
+			token,
 			user: {
 				id: user.id,
 				name: user.name,

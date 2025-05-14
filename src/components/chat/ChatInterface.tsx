@@ -1,14 +1,14 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Paperclip, Image as LucideImage, File } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import axios from "@/lib/axios";
 import { socket } from "@/lib/socketClient";
 import { User } from "@prisma/client";
-import axios from "axios";
+import { Send } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface Message {
 	senderId: string;
@@ -27,11 +27,9 @@ interface ChatInterfaceProps {
 
 export default function ChatInterface({ selectedUser }: ChatInterfaceProps) {
 	const { user: currentUser } = useAuth();
-
 	const [newMessage, setNewMessage] = useState("");
 	const [messages, setMessages] = useState<Message[]>([]);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
-
 	const room = currentUser && selectedUser ? getRoomId(currentUser.id, selectedUser.id) : "";
 
 	const handleSendMessage = () => {

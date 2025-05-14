@@ -5,8 +5,9 @@ import { ReactNode } from "react";
 
 type AuthorizationCheckpostProps = IsAuthorizedProps & {
 	children: ReactNode;
+	errorComponent?: ReactNode;
 };
-export default function AuthorizationCheckpost({ children, featurePrivilege, featurePrivileges = [], privileges = [] }: AuthorizationCheckpostProps) {
+export default function AuthorizationCheckpost({ children, featurePrivilege, featurePrivileges = [], privileges = [], errorComponent }: AuthorizationCheckpostProps) {
 	const user = useAuth();
 
 	if (
@@ -19,5 +20,5 @@ export default function AuthorizationCheckpost({ children, featurePrivilege, fea
 	) {
 		return children;
 	}
-	return "";
+	return errorComponent ?? "";
 }
